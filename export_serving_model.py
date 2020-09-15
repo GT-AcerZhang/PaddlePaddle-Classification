@@ -7,11 +7,11 @@ import paddle_serving_client.io as serving_io
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--model", type=str)
-    parser.add_argument("-p", "--pretrained_model", type=str)
-    parser.add_argument("-o", "--output_path", type=str, default="")
-    parser.add_argument("--class_dim", type=int, default=23)
-    parser.add_argument("--img_size", type=int, default=224)
+    parser.add_argument("-m", "--model",            type=str,  default='ResNet50_vd')
+    parser.add_argument("-p", "--pretrained_model", type=str,  default='output/ResNet50_vd/best_model_in_epoch_1/ppcls')
+    parser.add_argument("-o", "--output_path",      type=str,  default='output/serving_model/')
+    parser.add_argument("--class_dim",              type=int,  default=24)
+    parser.add_argument("--img_size",               type=int,  default=224)
 
     return parser.parse_args()
 

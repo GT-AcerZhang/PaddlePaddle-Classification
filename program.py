@@ -199,12 +199,10 @@ def create_fetchs(out,
         fetchs(dict): dict of model outputs(included loss and measures)
     """
     fetchs = OrderedDict()
-    loss = create_loss(out, feeds, architecture, classes_num, epsilon, use_mix,
-                       use_distillation)
+    loss = create_loss(out, feeds, architecture, classes_num, epsilon, use_mix, use_distillation)
     fetchs['loss'] = (loss, AverageMeter('loss', '7.4f', need_avg=True))
     if not use_mix:
-        metric = create_metric(out, feeds, architecture, topk, classes_num,
-                               use_distillation)
+        metric = create_metric(out, feeds, architecture, topk, classes_num, use_distillation)
         fetchs.update(metric)
 
     return fetchs
@@ -236,7 +234,7 @@ def create_optimizer(config):
     lr_config['params'].update({
         'epochs': config['epochs'],
         'step_each_epoch':
-        config['total_images'] // config['TRAIN']['batch_size'],
+            config['total_images'] // config['TRAIN']['batch_size'],
     })
     lr = LearningRateBuilder(**lr_config)()
 
@@ -273,10 +271,9 @@ def mixed_precision_optimizer(config, optimizer):
     amp_scale_loss = config.get('amp_scale_loss', 1.0)
     use_dynamic_loss_scaling = config.get('use_dynamic_loss_scaling', False)
     if use_fp16:
-        optimizer = fluid.contrib.mixed_precision.decorate(
-            optimizer,
-            init_loss_scaling=amp_scale_loss,
-            use_dynamic_loss_scaling=use_dynamic_loss_scaling)
+        optimizer = fluid.contrib.mixed_precision.decorate(optimizer,
+                                                           init_loss_scaling=amp_scale_loss,
+                                                           use_dynamic_loss_scaling=use_dynamic_loss_scaling)
 
     return optimizer
 
@@ -305,36 +302,30 @@ def build(config, main_prog, startup_prog, is_train=True, is_distributed=True):
             use_distillation = config.get('use_distillation')
             feeds = create_feeds(config.image_shape, use_mix=use_mix)
             dataloader = create_dataloader(feeds.values())
-            out = create_model(config.ARCHITECTURE, feeds['image'],
-                               config.classes_num, is_train)
-            fetchs = create_fetchs(
-                out,
-                feeds,
-                config.ARCHITECTURE,
-                config.topk,
-                config.classes_num,
-                epsilon=config.get('ls_epsilon'),
-                use_mix=use_mix,
-                use_distillation=use_distillation)
+            out = create_model(config.ARCHITECTURE, feeds['image'], config.classes_num, is_train)
+            fetchs = create_fetchs(out,
+                                   feeds,
+                                   config.ARCHITECTURE,
+                                   config.topk,
+                                   config.classes_num,
+                                   epsilon=config.get('ls_epsilon'),
+                                   use_mix=use_mix,
+                                   use_distillation=use_distillation)
             if is_train:
                 optimizer = create_optimizer(config)
                 lr = optimizer._global_learning_rate()
                 fetchs['lr'] = (lr, AverageMeter('lr', 'f', need_avg=False))
-
                 optimizer = mixed_precision_optimizer(config, optimizer)
                 if is_distributed:
                     optimizer = dist_optimizer(config, optimizer)
                 optimizer.minimize(fetchs['loss'][0])
                 if config.get('use_ema'):
-
-                    global_steps = fluid.layers.learning_rate_scheduler._decay_step_counter(
-                    )
-                    ema = ExponentialMovingAverage(
-                        config.get('ema_decay'), thres_steps=global_steps)
+                    global_steps = fluid.layers.learning_rate_scheduler._decay_step_counter()
+                    ema = ExponentialMovingAverage(config.get('ema_decay'), thres_steps=global_steps)
                     ema.update()
-                    return dataloader, fetchs, ema
+                    return dataloader, fetchs, ema, out
 
-    return dataloader, fetchs
+    return dataloader, fetchs, out
 
 
 def compile(config, program, loss_name=None, share_prog=None):
@@ -354,11 +345,10 @@ def compile(config, program, loss_name=None, share_prog=None):
     exec_strategy.num_threads = 1
     exec_strategy.num_iteration_per_drop_scope = 10
 
-    compiled_program = fluid.CompiledProgram(program).with_data_parallel(
-        share_vars_from=share_prog,
-        loss_name=loss_name,
-        build_strategy=build_strategy,
-        exec_strategy=exec_strategy)
+    compiled_program = fluid.CompiledProgram(program).with_data_parallel(share_vars_from=share_prog,
+                                                                         loss_name=loss_name,
+                                                                         build_strategy=build_strategy,
+                                                                         exec_strategy=exec_strategy)
 
     return compiled_program
 
@@ -397,16 +387,14 @@ def run(dataloader,
         tic = time.time()
         for i, m in enumerate(metrics):
             metric_list[i].update(np.mean(m), len(batch[0]))
-        fetchs_str = ''.join([str(m.value) + ' '
-                              for m in metric_list] + [batch_time.value]) + 's'
+        fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list] + [batch_time.value]) + 's'
         if vdl_writer:
             global total_step
             logger.scaler('loss', metrics[0][0], total_step, vdl_writer)
             total_step += 1
         if mode == 'eval':
             if idx % config.get('print_interval', 10) == 0:
-                logger.info("{:s} step:{:<4d} {:s}".format(mode, idx,
-                                                           fetchs_str))
+                logger.info("{:s} step:{:<4d} {:s}".format(mode, idx, fetchs_str))
         else:
             epoch_str = "epoch:{:<3d}".format(epoch)
             step_str = "{:s} step:{:<4d}".format(mode, idx)

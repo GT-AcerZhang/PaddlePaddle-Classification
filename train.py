@@ -53,25 +53,25 @@ def main(args):
     best_top1_acc = 0.0  # best top1 acc record
 
     if not config.get('use_ema'):
-        train_dataloader, train_fetchs = program.build(config,
-                                                       train_prog,
-                                                       startup_prog,
-                                                       is_train=True,
-                                                       is_distributed=False)
-    else:
-        train_dataloader, train_fetchs, ema = program.build(config,
+        train_dataloader, train_fetchs, out = program.build(config,
                                                             train_prog,
                                                             startup_prog,
                                                             is_train=True,
                                                             is_distributed=False)
+    else:
+        train_dataloader, train_fetchs, ema, out = program.build(config,
+                                                                 train_prog,
+                                                                 startup_prog,
+                                                                 is_train=True,
+                                                                 is_distributed=False)
 
     if config.validate:
         valid_prog = fluid.Program()
-        valid_dataloader, valid_fetchs = program.build(config,
-                                                       valid_prog,
-                                                       startup_prog,
-                                                       is_train=False,
-                                                       is_distributed=False)
+        valid_dataloader, valid_fetchs, _ = program.build(config,
+                                                          valid_prog,
+                                                          startup_prog,
+                                                          is_train=False,
+                                                          is_distributed=False)
         # clone to prune some content which is irrelevant in valid_prog
         valid_prog = valid_prog.clone(for_test=True)
 
