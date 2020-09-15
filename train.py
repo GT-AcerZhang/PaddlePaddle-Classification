@@ -31,10 +31,10 @@ def parse_args():
                         type=bool,
                         default=True,
                         help='If use slim quant train.')
-    parser.add_argument("-o",
-                        "--output_path",
+    parser.add_argument("--output_path",
                         type=str,
-                        default='output/inference_model/')
+                        default='output/inference_model/',
+                        help='Save quant models.')
     args = parser.parse_args()
     return args
 
