@@ -47,9 +47,6 @@ TRAIN:
         - RandAugment:
             num_layers: 2
             magnitude: 4
-        - Cutout:
-            n_holes: 1
-            length: 112
         - NormalizeImage:
             scale: 1./255.
             mean: [0.485, 0.456, 0.406]
