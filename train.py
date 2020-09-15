@@ -160,11 +160,6 @@ def main(args):
                                       target_vars=out,
                                       executor=exe,
                                       main_program=float_prog)
-        fluid.io.save_inference_model(dirname=args.output_path,
-                                      feeded_var_names=['feed_image'],
-                                      target_vars=out,
-                                      executor=exe,
-                                      main_program=int8_prog)
 
 
 if __name__ == '__main__':
