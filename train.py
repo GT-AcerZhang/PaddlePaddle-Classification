@@ -123,46 +123,48 @@ def main(args):
             model_path = os.path.join(config.model_save_dir, config.ARCHITECTURE["name"])
             save_model(train_prog, model_path, epoch_id)
 
-        # 量化训练
-        if args.use_quant:
-            # train
-            quant_program = slim.quant.quant_aware(train_prog, exe.place, for_test=False)
+    # 量化训练
+    if args.use_quant:
+        # train
+        quant_program = slim.quant.quant_aware(train_prog, exe.place, for_test=False)
 
-            fetch_list = [f[0] for f in train_fetchs.values()]
-            metric_list = [f[1] for f in train_fetchs.values()]
-            for idx, batch in enumerate(train_dataloader()):
-                metrics = exe.run(program=quant_program, feed=batch, fetch_list=fetch_list)
-                for i, m in enumerate(metrics):
-                    metric_list[i].update(np.mean(m), len(batch[0]))
-                fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list])
+        fetch_list = [f[0] for f in train_fetchs.values()]
+        metric_list = [f[1] for f in train_fetchs.values()]
+        for idx, batch in enumerate(train_dataloader()):
+            metrics = exe.run(program=quant_program, feed=batch, fetch_list=fetch_list)
+            for i, m in enumerate(metrics):
+                metric_list[i].update(np.mean(m), len(batch[0]))
+            fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list])
 
-                if idx % 10 == 0:
-                    logger.info("quant train : " + fetchs_str)
+            if idx % 10 == 0:
+                logger.info("quant train : " + fetchs_str)
 
-            # 评估量化的结果
-            val_quant_program = slim.quant.quant_aware(train_prog, exe.place, for_test=True)
+        # 评估量化的结果
+        val_quant_program = slim.quant.quant_aware(valid_prog, exe.place, for_test=True)
 
-            for idx, batch in enumerate(valid_dataloader()):
-                metrics = exe.run(program=val_quant_program, feed=batch, fetch_list=valid_fetchs)
-                for i, m in enumerate(metrics):
-                    metric_list[i].update(np.mean(m), len(batch[0]))
-                fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list])
+        fetch_list = [f[0] for f in valid_fetchs.values()]
+        metric_list = [f[1] for f in valid_fetchs.values()]
+        for idx, batch in enumerate(valid_dataloader()):
+            metrics = exe.run(program=val_quant_program, feed=batch, fetch_list=fetch_list)
+            for i, m in enumerate(metrics):
+                metric_list[i].update(np.mean(m), len(batch[0]))
+            fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list])
 
-                if idx % 10 == 0:
-                    logger.info("quant valid: " + fetchs_str)
+            if idx % 10 == 0:
+                logger.info("quant valid: " + fetchs_str)
 
-            # 保存量化训练模型
-            float_prog, int8_prog = slim.quant.convert(val_quant_program, exe.place, save_int8=True)
-            fluid.io.save_inference_model(dirname=args.output_path,
-                                          feeded_var_names=['feed_image'],
-                                          target_vars=out,
-                                          executor=exe,
-                                          main_program=float_prog)
-            fluid.io.save_inference_model(dirname=args.output_path,
-                                          feeded_var_names=['feed_image'],
-                                          target_vars=out,
-                                          executor=exe,
-                                          main_program=int8_prog)
+        # 保存量化训练模型
+        float_prog, int8_prog = slim.quant.convert(val_quant_program, exe.place, save_int8=True)
+        fluid.io.save_inference_model(dirname=args.output_path,
+                                      feeded_var_names=['feed_image'],
+                                      target_vars=out,
+                                      executor=exe,
+                                      main_program=float_prog)
+        fluid.io.save_inference_model(dirname=args.output_path,
+                                      feeded_var_names=['feed_image'],
+                                      target_vars=out,
+                                      executor=exe,
+                                      main_program=int8_prog)
 
 
 if __name__ == '__main__':

@@ -30,7 +30,7 @@ OPTIMIZER:
         factor: 0.000070
 
 TRAIN:
-    batch_size: 32
+    batch_size: 64
     num_workers: 4
     file_list: "./dataset/train_list.txt"
     data_dir: "./"
@@ -55,7 +55,7 @@ TRAIN:
             alpha: 0.2
 
 VALID:
-    batch_size: 32
+    batch_size: 64
     num_workers: 4
     file_list: "./dataset/test_list.txt"
     data_dir: "./"

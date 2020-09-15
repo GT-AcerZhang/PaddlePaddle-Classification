@@ -15,7 +15,7 @@ def parse_args():
 
 
 def create_input(img_size=224):
-    image = fluid.data(name='image', shape=[None, 3, img_size, img_size], dtype='float32')
+    image = fluid.data(name='feed_image', shape=[None, 3, img_size, img_size], dtype='float32')
     return image
 
 
