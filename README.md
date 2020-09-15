@@ -15,5 +15,5 @@ pip install ujson opencv-python pillow tqdm PyYAML visualdl -i https://mirrors.a
 
 3. 安装PaddleClas库
 ```shell script
-pip install ./ppcls-0.0.1-py3-none-any.whl
+pip install ./utils/ppcls-0.0.1-py3-none-any.whl
 ```

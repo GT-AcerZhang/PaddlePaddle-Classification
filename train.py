@@ -7,7 +7,7 @@ from ppcls.data import Reader
 from ppcls.utils.config import get_config
 from ppcls.utils.save_load import init_model, save_model
 from ppcls.utils import logger
-import program
+from utils import program
 import paddleslim as slim
 
 

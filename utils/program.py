@@ -19,7 +19,7 @@ from ppcls.utils import logger
 from paddle.fluid.incubate.fleet.collective import fleet
 from paddle.fluid.incubate.fleet.collective import DistributedStrategy
 
-from ema import ExponentialMovingAverage
+from utils.ema import ExponentialMovingAverage
 
 
 def create_feeds(image_shape, use_mix=None):
