@@ -48,6 +48,9 @@ def main(args):
     if not config.validate and args.use_quant:
         logger.error("=====>Train quant model must use validate!")
         sys.exit(1)
+    if config.epochs < 6 and args.use_quant:
+        logger.error("=====>Train quant model epochs must greater than 6!")
+        sys.exit(1)
     # 设置是否使用 GPU
     use_gpu = config.get("use_gpu", True)
     places = fluid.cuda_places() if use_gpu else fluid.cpu_places()
