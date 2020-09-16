@@ -100,7 +100,7 @@ def main(args):
 
     vdl_writer = LogWriter(args.vdl_dir)
 
-    for epoch_id in range(config.epochs):
+    for epoch_id in range(config.epochs - 5):
         # 训练一轮
         program.run(train_dataloader, exe, compiled_train_prog, train_fetchs, epoch_id, 'train', config, vdl_writer)
 
@@ -137,14 +137,15 @@ def main(args):
 
         fetch_list = [f[0] for f in train_fetchs.values()]
         metric_list = [f[1] for f in train_fetchs.values()]
-        for idx, batch in enumerate(train_dataloader()):
-            metrics = exe.run(program=quant_program, feed=batch, fetch_list=fetch_list)
-            for i, m in enumerate(metrics):
-                metric_list[i].update(np.mean(m), len(batch[0]))
-            fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list])
+        for i in range(5):
+            for idx, batch in enumerate(train_dataloader()):
+                metrics = exe.run(program=quant_program, feed=batch, fetch_list=fetch_list)
+                for i, m in enumerate(metrics):
+                    metric_list[i].update(np.mean(m), len(batch[0]))
+                fetchs_str = ''.join([str(m.value) + ' ' for m in metric_list])
 
-            if idx % 10 == 0:
-                logger.info("quant train : " + fetchs_str)
+                if idx % 10 == 0:
+                    logger.info("quant train : " + fetchs_str)
 
         # 评估量化的结果
         val_quant_program = slim.quant.quant_aware(valid_prog, exe.place, for_test=True)
