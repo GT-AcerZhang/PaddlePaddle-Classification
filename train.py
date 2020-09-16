@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 import sys
 
 import numpy as np
@@ -121,11 +122,13 @@ def main(args):
                 logger.info("{:s}".format(logger.coloring(message, "RED")))
                 if epoch_id % config.save_interval == 0:
                     model_path = os.path.join(config.model_save_dir, config.ARCHITECTURE["name"])
-                    save_model(train_prog, model_path, "best_model_in_epoch_" + str(epoch_id))
+                    save_model(train_prog, model_path, "best_model")
 
         # 3. save the persistable model
         if epoch_id % config.save_interval == 0:
             model_path = os.path.join(config.model_save_dir, config.ARCHITECTURE["name"])
+            if epoch_id > 3 and os.path.exists(os.path.join(model_path, str(epoch_id - 3))):
+                shutil.rmtree(os.path.join(model_path, str(epoch_id - 3)), ignore_errors=True)
             save_model(train_prog, model_path, epoch_id)
 
     # 量化训练

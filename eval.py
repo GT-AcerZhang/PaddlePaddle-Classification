@@ -156,5 +156,5 @@ def evaluate_infer(data_list, model_path):
 
 
 if __name__ == '__main__':
-    # evaluate_quant('dataset/test_list.txt', 'output/inference_model')
+    evaluate_quant('dataset/test_list.txt', 'output/quant_inference_model')
     evaluate_infer('dataset/test_list.txt', 'output/inference_model')
