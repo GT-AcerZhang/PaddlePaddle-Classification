@@ -1,5 +1,7 @@
 import argparse
 import os
+import sys
+
 import numpy as np
 import paddle.fluid as fluid
 from visualdl import LogWriter
@@ -33,7 +35,7 @@ def parse_args():
                         help='If use slim quant train.')
     parser.add_argument("--output_path",
                         type=str,
-                        default='output/inference_model/',
+                        default='output/quant_inference_model/',
                         help='Save quant models.')
     args = parser.parse_args()
     return args
@@ -41,6 +43,9 @@ def parse_args():
 
 def main(args):
     config = get_config(args.config, overrides=args.override, show=True)
+    if not config.validate and args.use_quant:
+        logger.error("=====>Train quant model must use validate!")
+        sys.exit(1)
     # assign the place
     use_gpu = config.get("use_gpu", True)
     places = fluid.cuda_places() if use_gpu else fluid.cpu_places()
@@ -124,7 +129,7 @@ def main(args):
             save_model(train_prog, model_path, epoch_id)
 
     # 量化训练
-    if args.use_quant:
+    if args.use_quant and config.validate:
         # train
         quant_program = slim.quant.quant_aware(train_prog, exe.place, for_test=False)
 
@@ -159,7 +164,9 @@ def main(args):
                                       feeded_var_names=['feed_image'],
                                       target_vars=out,
                                       executor=exe,
-                                      main_program=float_prog)
+                                      main_program=float_prog,
+                                      model_filename='__model__',
+                                      params_filename='__params__')
 
 
 if __name__ == '__main__':

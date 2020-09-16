@@ -8,7 +8,7 @@ import paddle_serving_client.io as serving_io
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model",            type=str,  default='ResNet50_vd')
-    parser.add_argument("-p", "--pretrained_model", type=str,  default='output/ResNet50_vd/best_model_in_epoch_1/ppcls')
+    parser.add_argument("-p", "--pretrained_model", type=str,  default='output/ResNet50_vd/best_model_in_epoch_196/ppcls')
     parser.add_argument("-o", "--output_path",      type=str,  default='output/serving_model/')
     parser.add_argument("--class_dim",              type=int,  default=24)
     parser.add_argument("--img_size",               type=int,  default=224)
@@ -51,6 +51,10 @@ def main():
 
     model_path = os.path.join(args.output_path, "ppcls_model")
     conf_path = os.path.join(args.output_path, "ppcls_client_conf")
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
+    if not os.path.exists(conf_path):
+        os.makedirs(conf_path)
     serving_io.save_model(model_path, conf_path, {"image": image}, {"prediction": out}, infer_prog)
 
 

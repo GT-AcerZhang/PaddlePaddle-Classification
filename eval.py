@@ -11,9 +11,8 @@ def parse_args():
         return v.lower() in ("true", "t", "1")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--model_dir", type=str)
     parser.add_argument("--use_gpu", type=str2bool, default=True)
-    parser.add_argument("--img_size",               type=int,  default=224)
+    parser.add_argument("--img_size", type=int, default=224)
 
     return parser.parse_args()
 
@@ -24,10 +23,10 @@ def evaluate_quant(data_list, model_path):
         place = fluid.CUDAPlace(0) if args.use_gpu else fluid.CPUPlace()
         exe = fluid.Executor(place)
 
-        [program, feed_names, fetch_lists] = fluid.io.load_inference_model(dirname=args.model_dir,
+        [program, feed_names, fetch_lists] = fluid.io.load_inference_model(dirname=model_path,
                                                                            executor=exe,
-                                                                           model_filename='model.pd',
-                                                                           params_filename='params.pd')
+                                                                           model_filename='__model__',
+                                                                           params_filename='__params__')
         compiled_program = fluid.compiler.CompiledProgram(program)
 
         return exe, compiled_program, feed_names, fetch_lists
@@ -93,10 +92,10 @@ def evaluate_infer(data_list, model_path):
         place = fluid.CUDAPlace(0) if args.use_gpu else fluid.CPUPlace()
         exe = fluid.Executor(place)
 
-        [program, feed_names, fetch_lists] = fluid.io.load_inference_model(dirname=args.model_dir,
+        [program, feed_names, fetch_lists] = fluid.io.load_inference_model(dirname=model_path,
                                                                            executor=exe,
-                                                                           model_filename='model.pd',
-                                                                           params_filename='params.pd')
+                                                                           model_filename='__model__',
+                                                                           params_filename='__params__')
         compiled_program = fluid.compiler.CompiledProgram(program)
 
         return exe, compiled_program, feed_names, fetch_lists
@@ -152,10 +151,10 @@ def evaluate_infer(data_list, model_path):
             results.append(1)
     end = time.time()
     t = int(round((end - start) * 1000)) / len(lines)
-    print("准确率：%0.5f, 平均预测时间为：%d" % (sum(results) / len(lines), t))
+    print("准确率：%0.5f, 平均预测时间为：%dms" % (sum(results) / len(lines), t))
     print('=' * 70)
 
 
 if __name__ == '__main__':
-    evaluate_quant('dataset/test_list.txt', 'models')
-    evaluate_infer('dataset/test_list.txt', 'models')
+    # evaluate_quant('dataset/test_list.txt', 'output/inference_model')
+    evaluate_infer('dataset/test_list.txt', 'output/inference_model')
