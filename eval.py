@@ -13,7 +13,6 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--use_gpu", type=str2bool, default=True)
     parser.add_argument("--img_size", type=int, default=224)
-
     return parser.parse_args()
 
 
