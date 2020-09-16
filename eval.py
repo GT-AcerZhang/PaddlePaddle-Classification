@@ -11,8 +11,8 @@ def parse_args():
         return v.lower() in ("true", "t", "1")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--use_gpu", type=str2bool, default=True)
-    parser.add_argument("--img_size", type=int, default=224)
+    parser.add_argument("--use_gpu",  type=str2bool, default=True)
+    parser.add_argument("--img_size", type=int,      default=224)
     return parser.parse_args()
 
 

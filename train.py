@@ -126,7 +126,7 @@ def main(args):
         # 保存模型
         if epoch_id % config.save_interval == 0:
             model_path = os.path.join(config.model_save_dir, config.ARCHITECTURE["name"])
-            if epoch_id > 3 and os.path.exists(os.path.join(model_path, str(epoch_id - 3))):
+            if epoch_id >= 3 and os.path.exists(os.path.join(model_path, str(epoch_id - 3))):
                 shutil.rmtree(os.path.join(model_path, str(epoch_id - 3)), ignore_errors=True)
             save_model(train_prog, model_path, epoch_id)
 
