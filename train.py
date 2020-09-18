@@ -137,6 +137,8 @@ def main(args):
     if args.use_quant and config.validate:
         # 执行量化训练
         quant_program = slim.quant.quant_aware(train_prog, exe.place, for_test=False)
+        # 评估量化的结果
+        val_quant_program = slim.quant.quant_aware(valid_prog, exe.place, for_test=True)
 
         fetch_list = [f[0] for f in train_fetchs.values()]
         metric_list = [f[1] for f in train_fetchs.values()]
@@ -149,9 +151,6 @@ def main(args):
 
                 if idx % 10 == 0:
                     logger.info("quant train : " + fetchs_str)
-
-        # 评估量化的结果
-        val_quant_program = slim.quant.quant_aware(valid_prog, exe.place, for_test=True)
 
         fetch_list = [f[0] for f in valid_fetchs.values()]
         metric_list = [f[1] for f in valid_fetchs.values()]
