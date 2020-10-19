@@ -84,7 +84,8 @@ def create_model(architecture, image, classes_num, is_train):
         params['is_test'] = not is_train
     model = architectures.__dict__[name](**params)
     out = model.net(input=image, class_dim=classes_num)
-    return out
+    softmax_out = fluid.layers.softmax(out)
+    return out, softmax_out
 
 
 def create_loss(out,
@@ -302,7 +303,7 @@ def build(config, main_prog, startup_prog, is_train=True, is_distributed=True):
             use_distillation = config.get('use_distillation')
             feeds = create_feeds(config.image_shape, use_mix=use_mix)
             dataloader = create_dataloader(feeds.values())
-            out = create_model(config.ARCHITECTURE, feeds['image'], config.classes_num, is_train)
+            out, softmax_out = create_model(config.ARCHITECTURE, feeds['image'], config.classes_num, is_train)
             fetchs = create_fetchs(out,
                                    feeds,
                                    config.ARCHITECTURE,
@@ -323,9 +324,9 @@ def build(config, main_prog, startup_prog, is_train=True, is_distributed=True):
                     global_steps = fluid.layers.learning_rate_scheduler._decay_step_counter()
                     ema = ExponentialMovingAverage(config.get('ema_decay'), thres_steps=global_steps)
                     ema.update()
-                    return dataloader, fetchs, ema, out
+                    return dataloader, fetchs, ema, out, softmax_out
 
-    return dataloader, fetchs, out
+    return dataloader, fetchs, out, softmax_out
 
 
 def compile(config, program, loss_name=None, share_prog=None):

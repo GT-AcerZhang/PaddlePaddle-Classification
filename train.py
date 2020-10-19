@@ -62,25 +62,25 @@ def main(args):
 
     # 获取训练数据和模型输出
     if not config.get('use_ema'):
-        train_dataloader, train_fetchs, out = program.build(config,
-                                                            train_prog,
-                                                            startup_prog,
-                                                            is_train=True,
-                                                            is_distributed=False)
+        train_dataloader, train_fetchs, out, softmax_out = program.build(config,
+                                                                         train_prog,
+                                                                         startup_prog,
+                                                                         is_train=True,
+                                                                         is_distributed=False)
     else:
-        train_dataloader, train_fetchs, ema, out = program.build(config,
-                                                                 train_prog,
-                                                                 startup_prog,
-                                                                 is_train=True,
-                                                                 is_distributed=False)
+        train_dataloader, train_fetchs, ema, out, softmax_out = program.build(config,
+                                                                              train_prog,
+                                                                              startup_prog,
+                                                                              is_train=True,
+                                                                              is_distributed=False)
     # 获取评估数据和模型输出
     if config.validate:
         valid_prog = fluid.Program()
-        valid_dataloader, valid_fetchs, _ = program.build(config,
-                                                          valid_prog,
-                                                          startup_prog,
-                                                          is_train=False,
-                                                          is_distributed=False)
+        valid_dataloader, valid_fetchs, _, _ = program.build(config,
+                                                             valid_prog,
+                                                             startup_prog,
+                                                             is_train=False,
+                                                             is_distributed=False)
         # 克隆评估程序，可以去掉与评估无关的计算
         valid_prog = valid_prog.clone(for_test=True)
 
@@ -165,10 +165,9 @@ def main(args):
 
         # 保存量化训练模型
         float_prog, int8_prog = slim.quant.convert(val_quant_program, exe.place, save_int8=True)
-        # out = fluid.layers.softmax(out)
         fluid.io.save_inference_model(dirname=args.output_path,
                                       feeded_var_names=['feed_image'],
-                                      target_vars=[out],
+                                      target_vars=[softmax_out],
                                       executor=exe,
                                       main_program=float_prog,
                                       model_filename='__model__',
