@@ -19,6 +19,16 @@ def create_input(img_size=224):
     return image
 
 
+# 获取模型输出层
+def create_model(args, model, input, class_dim=1000):
+    if args.model == "GoogLeNet":
+        out, _, _ = model.net(input=input, class_dim=class_dim)
+    else:
+        out = model.net(input=input, class_dim=class_dim)
+        out = fluid.layers.softmax(out)
+    return out
+
+
 def main():
     args = parse_args()
 
@@ -33,7 +43,7 @@ def main():
     with fluid.program_guard(infer_prog, startup_prog):
         with fluid.unique_name.guard():
             image = create_input(args.img_size)
-            out = model.net(input=image, class_dim=args.class_dim)
+            out = create_model(args, model, image, class_dim=args.class_dim)
     # 克隆并去掉与预测无关的计算
     infer_prog = infer_prog.clone(for_test=True)
     # 加载模型

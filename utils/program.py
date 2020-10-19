@@ -84,7 +84,6 @@ def create_model(architecture, image, classes_num, is_train):
         params['is_test'] = not is_train
     model = architectures.__dict__[name](**params)
     out = model.net(input=image, class_dim=classes_num)
-    out = fluid.layers.softmax(out)
     return out
 
 
