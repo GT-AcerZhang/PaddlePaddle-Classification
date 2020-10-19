@@ -1,5 +1,5 @@
 # PaddlePaddle-Classification
-基于[PaddleClas](https://github.com/PaddlePaddle/PaddleClas) 修改的图像分类模型，方便定义数据集训练和量化训练。
+基于[PaddleClas](https://github.com/PaddlePaddle/PaddleClas) 修改的图像分类模型，方便训练自定义数据集和量化训练。
 
 # 安装环境
 
