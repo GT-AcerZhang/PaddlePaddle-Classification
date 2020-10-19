@@ -1,5 +1,5 @@
 # PaddlePaddle-Classification
-PaddlePaddle实现的图像分类模型
+基于[PaddleClas](https://github.com/PaddlePaddle/PaddleClas) 修改的图像分类模型，方便定义数据集训练和量化训练。
 
 # 安装环境
 
@@ -20,7 +20,7 @@ pip install paddleslim==1.1.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 4. 安装PaddleClas库
 ```shell script
-pip install ./utils/ppcls-0.0.1-py3-none-any.whl
+pip install ./utils/ppcls-0.0.2-py3-none-any.whl
 ```
 
 # 训练
@@ -34,7 +34,7 @@ dataset/images/class15/test2.jpg 15
 dataset/images/class6/test3.jpg 6
 ```
 
-3. 执行`train.py`开始训练，训练的模型会保存在`output`中，VisualDL的日志保存在`logs`中。执行命令如下，如果想要训练其他的模型，可以更改`config`的配置文件路径，如果训练数据集太少，需要设置num_workers为1,并使用单卡训练。
+3. 执行`train.py`开始训练，训练的模型会保存在`output`中，VisualDL的日志保存在`logs`中。执行命令如下，如果想要训练其他的模型，可以更改`config`的配置文件路径，配置文件来源地址：[configs](https://github.com/PaddlePaddle/PaddleClas/tree/master/configs) 特别说明，不支持GoogLeNet。如果训练数据集太少，需要设置num_workers为1,并使用单卡训练。
 ```shell script
 CUDA_VISIBLE_DEVICES=0 python train.py --config configs/ResNet50_vd.yaml
 ```

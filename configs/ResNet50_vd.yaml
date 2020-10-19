@@ -2,7 +2,7 @@ mode: 'train'
 ARCHITECTURE:
     name: 'ResNet50_vd'
 
-pretrained_model: "pretrained_models/ResNet50_vd_pretrained"
+pretrained_model: "pretrained_models/ResNet50_vd_pretrained" # https://paddle-imagenet-models-name.bj.bcebos.com/ResNet50_vd_pretrained.tar
 model_save_dir: "./output/"
 classes_num: 24
 total_images: 17492

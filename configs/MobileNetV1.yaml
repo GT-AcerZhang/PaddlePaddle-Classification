@@ -1,31 +1,32 @@
 mode: 'train'
 ARCHITECTURE:
-  name: "MobileNetV2_x2_0"
+    name: "MobileNetV3_large_x1_0"
 
-pretrained_model: "pretrained_models/MobileNetV2_x2_0_pretrained" # https://paddle-imagenet-models-name.bj.bcebos.com/MobileNetV2_x2_0_pretrained.tar
+pretrained_model: "pretrained_models/MobileNetV1_pretrained" # https://paddle-imagenet-models-name.bj.bcebos.com/MobileNetV1_pretrained.tar
 model_save_dir: "./output/"
 classes_num: 24
 total_images: 17492
 save_interval: 1
 validate: True
 valid_interval: 1
-epochs: 400
+epochs: 120
 topk: 5
 image_shape: [3, 224, 224]
 
-
 LEARNING_RATE:
-  function: 'Cosine'
-  params:
-    lr: 0.045
+   function: 'Piecewise'
+   params:
+       lr: 0.1
+       decay_epochs: [30, 60, 90]
+       gamma: 0.1
 
 OPTIMIZER:
-  function: 'Momentum'
-  params:
-    momentum: 0.9
-  regularizer:
-    function: 'L2'
-    factor: 0.00004
+    function: 'Momentum'
+    params:
+        momentum: 0.9
+    regularizer:
+        function: 'L2'
+        factor: 0.00003
 
 TRAIN:
     batch_size: 64
