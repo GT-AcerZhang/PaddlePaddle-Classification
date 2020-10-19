@@ -34,7 +34,7 @@ dataset/images/class15/test2.jpg 15
 dataset/images/class6/test3.jpg 6
 ```
 
-3. 执行`train.py`开始训练，训练的模型会保存在`output`中，VisualDL的日志保存在`logs`中。执行命令如下，如果想要训练其他的模型，可以更改`config`的配置文件路径。
+3. 执行`train.py`开始训练，训练的模型会保存在`output`中，VisualDL的日志保存在`logs`中。执行命令如下，如果想要训练其他的模型，可以更改`config`的配置文件路径，如果训练数据集太少，需要设置num_workers为1,并使用单卡训练。
 ```shell script
 CUDA_VISIBLE_DEVICES=0 python train.py --config configs/ResNet50_vd.yaml
 ```

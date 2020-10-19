@@ -164,10 +164,11 @@ def main(args):
                 logger.info("quant valid: " + fetchs_str)
 
         # 保存量化训练模型
+        out = fluid.layers.softmax(out)
         float_prog, int8_prog = slim.quant.convert(val_quant_program, exe.place, save_int8=True)
         fluid.io.save_inference_model(dirname=args.output_path,
                                       feeded_var_names=['feed_image'],
-                                      target_vars=out,
+                                      target_vars=[out],
                                       executor=exe,
                                       main_program=float_prog,
                                       model_filename='__model__',
