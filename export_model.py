@@ -7,7 +7,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--model",            type=str,  default='ResNet50_vd')
     parser.add_argument("-p", "--pretrained_model", type=str,  default='output/ResNet50_vd/best_model/ppcls')
-    parser.add_argument("-o", "--output_path",      type=str,  default='output/ResNet50_vd_Inference/')
+    parser.add_argument("-o", "--output_path",      type=str,  default='output/inference_model/')
     parser.add_argument("--class_dim",              type=int,  default=24)
     parser.add_argument("--img_size",               type=int,  default=224)
     return parser.parse_args()
