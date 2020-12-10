@@ -1,14 +1,15 @@
 mode: 'train'
 ARCHITECTURE:
     name: 'ResNet50_vd'
+    params:
+        lr_mult_list: [0.2, 0.2, 0.4, 0.4, 0.6]
 
-pretrained_model: "pretrained_models/ResNet50_vd_pretrained" # https://paddle-imagenet-models-name.bj.bcebos.com/ResNet50_vd_pretrained.tar
+pretrained_model: "" # https://paddle-imagenet-models-name.bj.bcebos.com/ResNet50_vd_ssld_pretrained.tar
 model_save_dir: "./output/"
 classes_num: 24
 total_images: 17492
 save_interval: 1
 validate: True
-validate_train: True
 valid_interval: 1
 epochs: 400
 topk: 5
@@ -32,7 +33,7 @@ OPTIMIZER:
 
 TRAIN:
     batch_size: 64
-    num_workers: 4
+    num_workers: 1
     file_list: "./dataset/train_list.txt"
     data_dir: "./"
     shuffle_seed: 0
@@ -47,7 +48,7 @@ TRAIN:
             flip_code: 1
         - RandAugment:
             num_layers: 2
-            magnitude: 4
+            magnitude: 2
         - NormalizeImage:
             scale: 1./255.
             mean: [0.485, 0.456, 0.406]
@@ -60,31 +61,8 @@ TRAIN:
 
 VALID:
     batch_size: 64
-    num_workers: 4
-    file_list: "./dataset/test_list.txt"
-    data_dir: "./"
-    shuffle_seed: 0
-    transforms:
-        - DecodeImage:
-            to_rgb: True
-            to_np: False
-            channel_first: False
-        - ResizeImage:
-            resize_short: 256
-        - CropImage:
-            size: 224
-        - NormalizeImage:
-            scale: 1.0/255.0
-            mean: [0.485, 0.456, 0.406]
-            std: [0.229, 0.224, 0.225]
-            order: ''
-        - ToCHWImage:
-
-
-VALID1:
-    batch_size: 64
     num_workers: 1
-    file_list: "./dataset/train_list.txt"
+    file_list: "./dataset/test_list.txt"
     data_dir: "./"
     shuffle_seed: 0
     transforms:
