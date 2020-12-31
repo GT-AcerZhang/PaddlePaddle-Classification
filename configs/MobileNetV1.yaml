@@ -30,7 +30,7 @@ OPTIMIZER:
 
 TRAIN:
     batch_size: 64
-    num_workers: 4
+    num_workers: 1
     file_list: "./dataset/train_list.txt"
     data_dir: "./"
     shuffle_seed: 0
@@ -58,7 +58,7 @@ TRAIN:
 
 VALID:
     batch_size: 64
-    num_workers: 4
+    num_workers: 1
     file_list: "./dataset/test_list.txt"
     data_dir: "./"
     shuffle_seed: 0

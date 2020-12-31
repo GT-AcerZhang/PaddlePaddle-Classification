@@ -2,7 +2,7 @@ import argparse
 import os
 import shutil
 import sys
-
+from utils.utils import get_gpu_count
 import numpy as np
 import paddle.fluid as fluid
 from visualdl import LogWriter
@@ -32,7 +32,7 @@ def parse_args():
                         help='config options to be overridden')
     parser.add_argument('--use_quant',
                         type=bool,
-                        default=True,
+                        default=False,
                         help='If use slim quant train.')
     parser.add_argument("--output_path",
                         type=str,
@@ -48,9 +48,14 @@ def main(args):
     if not config.validate and args.use_quant:
         logger.error("=====>Train quant model must use validate!")
         sys.exit(1)
-    if config.epochs < 6 and args.use_quant:
-        logger.error("=====>Train quant model epochs must greater than 6!")
-        sys.exit(1)
+    if args.use_quant:
+        config.epochs = config.epochs + 5
+        gpu_count = get_gpu_count()
+        if gpu_count != 1:
+            logger.error("=====>`Train quant model must use only one GPU. "
+                         "Please set environment variable: `export CUDA_VISIBLE_DEVICES=[GPU_ID_TO_USE]` .")
+            sys.exit(1)
+
     # 设置是否使用 GPU
     use_gpu = config.get("use_gpu", True)
     places = fluid.cuda_places() if use_gpu else fluid.cpu_places()
@@ -81,13 +86,6 @@ def main(args):
                                                              startup_prog,
                                                              is_train=False,
                                                              is_distributed=False)
-        # 获取训练集的valid格式数据
-        if config.validate_train is not None and config.validate_train:
-            valid_dataloader_tain, valid_fetchs, _, _ = program.build(config,
-                                                                      valid_prog,
-                                                                      startup_prog,
-                                                                      is_train=False,
-                                                                      is_distributed=False)
         # 克隆评估程序，可以去掉与评估无关的计算
         valid_prog = valid_prog.clone(for_test=True)
 
@@ -106,10 +104,6 @@ def main(args):
     if config.validate:
         valid_reader = Reader(config, 'valid')()
         valid_dataloader.set_sample_list_generator(valid_reader, places)
-        # 获取训练集的valid格式数据
-        if config.validate_train is not None and config.validate_train:
-            valid_reader_train = Reader(config, 'valid1')()
-            valid_dataloader_tain.set_sample_list_generator(valid_reader_train, places)
         compiled_valid_prog = program.compile(config, valid_prog, share_prog=compiled_train_prog)
 
     vdl_writer = LogWriter(args.vdl_dir)
@@ -129,16 +123,9 @@ def main(args):
                 logger.info(logger.coloring("EMA validate over!"))
 
             top1_acc = program.run(valid_dataloader, exe, compiled_valid_prog, valid_fetchs, epoch_id, 'valid', config)
-            # 计算训练集的准确率
-            if config.validate_train is not None and config.validate_train:
-                train_top1_acc = program.run(valid_dataloader_tain, exe, compiled_valid_prog, valid_fetchs, epoch_id,
-                                             'valid', config)
+
             if vdl_writer:
-                print('=============', top1_acc, train_top1_acc)
                 logger.scaler('valid_avg', top1_acc, epoch_id, vdl_writer)
-                # 保存训练集的准确率
-                if config.validate_train is not None and config.validate_train:
-                    logger.scaler('train_avg', train_top1_acc, epoch_id, vdl_writer)
 
             if top1_acc > best_top1_acc:
                 best_top1_acc = top1_acc

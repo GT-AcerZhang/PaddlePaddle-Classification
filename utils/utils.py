@@ -1,5 +1,9 @@
+import os
+
 import cv2
 import numpy as np
+import subprocess
+from ppcls.utils import logger
 
 
 class DecodeImage(object):
@@ -68,3 +72,36 @@ class ToTensor(object):
     def __call__(self, img):
         img = img.transpose((2, 0, 1))
         return img
+
+
+def get_gpu_count():
+    """get avaliable gpu count
+
+    Returns:
+        gpu_count: int
+    """
+
+    gpu_count = 0
+
+    env_cuda_devices = os.environ.get('CUDA_VISIBLE_DEVICES', None)
+    if env_cuda_devices is not None:
+        assert isinstance(env_cuda_devices, str)
+        try:
+            if not env_cuda_devices:
+                return 0
+            gpu_count = len(
+                [x for x in env_cuda_devices.split(',') if int(x) >= 0])
+            logger.info(
+                'CUDA_VISIBLE_DEVICES found gpu count: {}'.format(gpu_count))
+        except:
+            logger.info('Cannot find available GPU devices, using CPU now.')
+            gpu_count = 0
+    else:
+        try:
+            gpu_count = str(subprocess.check_output(["nvidia-smi",
+                                                     "-L"])).count('UUID')
+            logger.info('nvidia-smi -L found gpu count: {}'.format(gpu_count))
+        except:
+            logger.info('Cannot find available GPU devices, using CPU now.')
+            gpu_count = 0
+    return gpu_count
