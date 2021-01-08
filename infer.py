@@ -5,13 +5,10 @@ from utils import utils
 
 
 def parse_args():
-    def str2bool(v):
-        return v.lower() in ("true", "t", "1")
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--image_path", type=str,      default="test.jpg")
     parser.add_argument("--model_path", type=str,      default="output/inference_model")
-    parser.add_argument("--use_gpu",    type=str2bool, default=False)
+    parser.add_argument("--use_gpu",    type=bool,     default=False)
     parser.add_argument("--img_size",   type=int,      default=224)
     return parser.parse_args()
 

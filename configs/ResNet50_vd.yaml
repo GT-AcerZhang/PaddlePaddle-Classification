@@ -9,7 +9,7 @@ total_images: 1806
 save_interval: 1
 validate: True
 valid_interval: 1
-epochs: 1
+epochs: 100
 topk: 5
 image_shape: [3, 224, 224]
 
